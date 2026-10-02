@@ -2,6 +2,8 @@
 
 Four interactive Streamlit charts built from `data/movie_ratings.csv`.
 
+[Open the live Streamlit dashboard](https://zerrokid.streamlit.app/)
+
 ## Run
 
 ```powershell
