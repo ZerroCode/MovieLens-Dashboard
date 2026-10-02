@@ -71,3 +71,60 @@ This compares release-year groups, not how audience ratings changed over time. T
 
 Raising the floor reduces eligible movies from **603 to 203**. **A Close Shave, The Wrong Trousers, and Wallace & Gromit** drop out because they have fewer than 150 ratings. **The Shawshank Redemption, Rear Window, and The Usual Suspects** enter, making **Schindler’s List** the new leader. Individual movie averages remain unchanged; only eligibility changes.
 
+>Build the four charts for Streamlit.   
+>main file path: app.py     
+>A straightforward layout is:   
+>- Chart 1: Sorted horizontal bar chart of movie counts by genre.
+>- Chart 2: Sorted horizontal bar chart of average ratings by genre.
+>- Chart 3: Line chart of average rating by release year, ordered chronologically.
+>- Chart 4: Horizontal bar chart of the top five eligible movies.
+>For Chart 4, display rating counts alongside averages so the minimum-count rule is easy to verify. If fewer than five movies qualify, show the available movies.
+>Add working interactive controls.
+>Two useful controls are:
+>- A minimum-rating-count selector with options 50 and 150, controlling Chart 4.
+>- A release-year range slider, controlling Chart 3.    
+>Label which chart each control affects. Switching between 50 and 150 must let you compare the two required top-five results.   
+>Run and check the app      
+>Anything used like Streamlit, pandas, and Plotly, list those packages in requirements.txt
+
+Built all four charts in [app.py], with:
+
+- Chart 3’s release-year slider.
+- Chart 4’s 50/150 selector, averages, and rating counts.
+- Handling for fewer than five eligible movies.
+
+Dependencies are in [requirements.txt].
+
+**Running:** [Open dashboard](http://127.0.0.1:8501)
+
+All six automated tests passed. Browser visual inspection was unavailable; Streamlit widget tests and server health checks passed.
+
+>Update my existing MovieLens Streamlit dashboard to meet these requirements. Use movie_ratings.csv and preserve any working features.     
+>Include all four required charts:      
+>1. Genre Breakdown: Show the distribution of genres among movies that were rated using a sorted bar chart. Count each unique movie once per genre, splitting pipe-separated genres. Explain this approach to me before implementing it.    
+>2. Genre Satisfaction: Show the average rating for each genre using a sorted bar chart. Use individual ratings, with each rating contributing to every genre associated with its movie.   
+>3. Ratings Over Time: Show mean rating by movie release year using a line chart. Use the year column, not the rating timestamp.   
+>4. Best Movies, With a Floor: Show the five highest-rated movies after filtering to movies with at least 50 ratings. Allow switching to at least 150 ratings so I can compare the results. Display each movie’s average rating and rating count.  
+>Add two working interactive controls:  
+>- A release-year range slider that updates Chart 3.  
+>- A minimum-rating-count selector with options of 50 and 150 that updates Chart 4. Apply this threshold before selecting the top five movies.    
+>Label the controls clearly so users know which chart they affect. Give every chart a clear title and labeled axes. Handle empty results gracefully.    
+>Do not include an embedded write-up or audit section. That belongs in next week’s notebook, not this dashboard.    
+>Provide the updated app.py, any necessary changes to requirements.txt, and brief instructions for running the app and checking that both controls work.    
+
+Updated [app.py] to preserve all four charts and both controls, add explicit bar-chart axis labels, and remove the embedded write-up. Empty-result handling and rating counts remain intact.
+
+[requirements.txt] already includes Streamlit, pandas, and Plotly; no changes were needed. All six automated tests passed.
+
+Run from the project folder:
+
+```powershell
+.venv/Scripts/python.exe -m pip install -r requirements.txt
+.venv/Scripts/python.exe -m streamlit run app.py
+```
+
+Check the controls:
+
+- **Chart 3:** Select **1990–1998**; only its line chart should change.
+- **Chart 4:** Switch **50 → 150**; the leader changes from **A Close Shave** to **Schindler’s List**. Switch back to restore the original ranking.
+- Select **1923–1925** to verify Chart 3’s empty-result message.
