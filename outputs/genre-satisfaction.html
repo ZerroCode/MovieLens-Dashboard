@@ -1,0 +1,31 @@
+<div id="genre-satisfaction">
+  <h3>Average rating by genre</h3>
+  <div id="genre-bars" role="img" aria-label="Genres ranked by average rating out of five. Film-Noir is highest at 3.92; Fantasy is lowest known genre at 3.22."></div>
+</div>
+<style>
+#genre-satisfaction .rating-row {display:grid;grid-template-columns:100px minmax(60px,1fr) 38px 62px;gap:8px;align-items:center;margin:8px 0;color:var(--foreground)}
+#genre-satisfaction .rating-track {background:var(--muted);height:16px}
+#genre-satisfaction .rating-bar {background:var(--viz-series-1);height:100%}
+#genre-satisfaction .rating-number {text-align:right;font-variant-numeric:tabular-nums}
+#genre-satisfaction .rating-axis {display:flex;justify-content:space-between;grid-column:2;color:var(--muted-foreground)}
+</style>
+<script>
+(() => {
+ const data = [['Film-Noir',3.921523,1733],['War',3.815812,9398],['Drama',3.687379,39895],['Documentary',3.672823,758],['Mystery',3.638132,5245],['Crime',3.632278,8055],['Romance',3.621705,19461],['Western',3.613269,1854],['Animation',3.576699,3605],['Sci-Fi',3.560723,12730],['Musical',3.521397,4954],['Thriller',3.509007,21872],['Adventure',3.503527,13753],['Action',3.480245,25589],['Comedy',3.394073,29832],['Children',3.353244,7182],['Horror',3.290389,5317],['Fantasy',3.215237,1352],['Unknown',3.2,10]];
+ const root=document.getElementById('genre-satisfaction');
+ const chart=root.querySelector('#genre-bars');
+ const header=document.createElement('div'); header.className='rating-row text-small';
+ header.innerHTML='<span>Genre</span><span>Average (out of 5)</span><span></span><span class="rating-number">Ratings</span>';chart.append(header);
+ data.forEach(([genre,mean,n])=>{
+ const row=document.createElement('div');row.className='rating-row text-small';
+ row.setAttribute('aria-label',`${genre}: ${mean.toFixed(2)} out of 5, ${n.toLocaleString('en-US')} ratings`);
+ const label=document.createElement('span');label.textContent=genre;
+ const track=document.createElement('div');track.className='rating-track';
+ const bar=document.createElement('div');bar.className='rating-bar';bar.style.width=`${mean/5*100}%`;track.append(bar);
+ const value=document.createElement('span');value.className='rating-number';value.textContent=mean.toFixed(2);
+ const count=document.createElement('span');count.className='rating-number';count.textContent=n.toLocaleString('en-US');
+ row.append(label,track,value,count);chart.append(row);
+ });
+ const axis=document.createElement('div');axis.className='rating-row text-small';axis.innerHTML='<div class="rating-axis"><span>0</span><span>2.5</span><span>5</span></div>';chart.append(axis);
+})();
+</script>

@@ -1,0 +1,38 @@
+<div id="movie-floors">
+<h3>Top five movies by minimum rating count</h3>
+<div class="panels"></div>
+</div>
+<style>
+#movie-floors .panel {margin-bottom:24px}
+#movie-floors .movie {margin:14px 0}
+#movie-floors .label {margin-bottom:4px;overflow-wrap:anywhere;color:var(--foreground)}
+#movie-floors .measure {display:grid;grid-template-columns:minmax(0,1fr) 48px 84px;gap:10px;align-items:center}
+#movie-floors .track {height:16px;background:var(--muted)}
+#movie-floors .bar {height:100%;background:var(--viz-series-1)}
+#movie-floors .number {text-align:right;font-variant-numeric:tabular-nums;color:var(--foreground)}
+#movie-floors .axis {display:flex;justify-content:space-between;color:var(--muted-foreground)}
+</style>
+<script>
+(()=>{
+const groups=[{floor:50,eligible:603,movies:[['A Close Shave (1995)',4.4910714286,112],["Schindler's List (1993)",4.4664429530,298],['The Wrong Trousers (1993)',4.4661016949,118],['Casablanca (1942)',4.4567901235,243],['Wallace & Gromit: The Best of Aardman Animation (1996)',4.4477611940,67]]},{floor:150,eligible:203,movies:[["Schindler's List (1993)",4.4664429530,298],['Casablanca (1942)',4.4567901235,243],['The Shawshank Redemption (1994)',4.4452296820,283],['Rear Window (1954)',4.3875598086,209],['The Usual Suspects (1995)',4.3857677903,267]]}];
+const root=document.getElementById('movie-floors');
+for(const group of groups){
+const panel=document.createElement('section');panel.className='panel';
+const heading=document.createElement('h3');heading.textContent=`At least ${group.floor} ratings`;
+const subtitle=document.createElement('div');subtitle.className='text-small';subtitle.textContent=`${group.eligible} eligible movies · Mean rating out of 5`;
+panel.append(heading,subtitle);
+group.movies.forEach(([title,mean,n],i)=>{
+const row=document.createElement('div');row.className='movie';
+const label=document.createElement('div');label.className='label';label.textContent=`${i+1}. ${title}`;
+const measure=document.createElement('div');measure.className='measure';
+const track=document.createElement('div');track.className='track';track.setAttribute('role','img');track.setAttribute('aria-label',`${title}: mean ${mean.toFixed(4)} out of 5, ${n} ratings`);
+const bar=document.createElement('div');bar.className='bar';bar.style.width=`${mean/5*100}%`;track.append(bar);
+const score=document.createElement('span');score.className='number';score.textContent=mean.toFixed(3);
+const count=document.createElement('span');count.className='number text-small';count.textContent=`${n} ratings`;
+measure.append(track,score,count);row.append(label,measure);panel.append(row);
+});
+const axis=document.createElement('div');axis.className='measure text-small';axis.innerHTML='<div class="axis"><span>0</span><span>2.5</span><span>5</span></div>';panel.append(axis);
+root.querySelector('.panels').append(panel);
+}
+})();
+</script>

@@ -1,0 +1,41 @@
+<div id="release-rating-chart">
+<h3>Mean rating by movie release year</h3>
+<div class="plot"></div>
+<div class="text-small detail" aria-live="polite">1922–1998 · Ratings on a 1–5 scale</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<style>
+#release-rating-chart svg text {fill:var(--foreground);font-size:12px}
+#release-rating-chart .domain,#release-rating-chart .tick line {stroke:var(--border)}
+#release-rating-chart .detail {color:var(--muted-foreground);min-height:40px}
+</style>
+<script>
+(()=>{
+const data=[ [1922,3.555556,54,1],[1926,3,2,1],[1930,3.777778,18,1],[1931,4,44,1],[1932,3.833333,12,1],[1933,3.968085,94,2],[1934,4.024845,161,4],[1935,3.874016,127,4],[1936,3.769231,39,2],[1937,3.745536,224,4],[1938,3.897059,204,3],[1939,3.993019,573,7],[1940,3.88,575,8],[1941,4.030488,492,5],[1942,4.398467,261,2],[1943,3.75,24,4],[1944,3.934783,230,5],[1945,3.6,75,4],[1946,4.086592,358,5],[1947,3.589286,56,5],[1948,4.073171,82,3],[1949,4.114583,96,4],[1950,3.771084,332,7],[1951,3.920502,478,5],[1952,4.034247,292,3],[1953,4.051948,77,2],[1954,4.040441,544,7],[1955,3.855932,236,6],[1956,3.72973,185,5],[1957,4.01938,516,8],[1958,3.84,400,9],[1959,3.995717,467,5],[1960,3.909333,375,5],[1961,3.47093,172,3],[1962,4.159016,610,5],[1963,3.933744,649,7],[1964,3.762346,324,3],[1965,3.572881,295,6],[1966,3.858156,141,2],[1967,3.992908,564,5],[1968,3.752315,432,6],[1969,3.78098,347,4],[1970,3.838095,420,4],[1971,3.704574,809,7],[1972,4.215812,468,3],[1973,3.91369,336,4],[1974,3.997961,981,8],[1975,3.921965,692,6],[1976,3.692875,407,6],[1977,4.141809,818,4],[1978,3.369727,403,4],[1979,3.764811,1114,9],[1980,3.874327,1114,8],[1981,3.76899,1277,13],[1982,3.752747,1456,13],[1983,3.890274,802,6],[1984,3.78532,1267,8],[1985,3.820652,920,7],[1986,3.718428,1552,14],[1987,3.751515,1155,14],[1988,3.701075,930,11],[1989,3.716102,2360,15],[1990,3.576482,2092,24],[1991,3.764861,1901,24],[1992,3.463956,2386,40],[1993,3.525408,6671,130],[1994,3.42008,9034,237],[1995,3.414642,12389,294],[1996,3.311086,18744,297],[1997,3.312467,15384,235],[1998,3.297297,851,53] ].map(([year,mean,n,movies])=>({year,mean,n,movies}));
+const root=document.getElementById('release-rating-chart'), plot=root.querySelector('.plot'),detail=root.querySelector('.detail');
+function draw(){
+const w=plot.clientWidth,h=340,left=64,right=18,top=26,bottom=54;
+const xe=d3.extent(data,d=>d.year),ye=d3.extent(data,d=>d.mean);
+const x=d3.scaleLinear().domain(xe).range([left+5,w-right-5]);
+const y=d3.scaleLinear().domain([ye[0]-.15,ye[1]+.15]).nice().range([h-bottom-5,top+5]);
+plot.replaceChildren();
+const svg=d3.select(plot).append('svg').attr('viewBox',`0 0 ${w} ${h}`).attr('width','100%').attr('role','img').attr('aria-label','Mean ratings fluctuate across release years and generally decline for newer releases. Hover or tap for year details.');
+svg.append('rect').attr('data-chart-frame','').attr('x',left).attr('y',top).attr('width',w-left-right).attr('height',h-top-bottom).attr('fill','none').attr('stroke','var(--border)');
+svg.append('g').attr('transform',`translate(0,${h-bottom})`).call(d3.axisBottom(x).ticks(w<450?3:7).tickFormat(d3.format('d')));
+svg.append('g').attr('transform',`translate(${left},0)`).call(d3.axisLeft(y).ticks(5));
+svg.append('text').attr('class','axis-title').attr('data-axis','x').attr('x',(left+w-right)/2).attr('y',h-10).attr('text-anchor','middle').text('Movie release year');
+svg.append('text').attr('class','axis-title').attr('data-axis','y').attr('transform',`translate(17,${(top+h-bottom)/2}) rotate(-90)`).attr('text-anchor','middle').text('Mean rating (1–5)');
+// Missing years remain gaps rather than invented observations.
+const byYear=new Map(data.map(d=>[d.year,d]));
+const years=d3.range(xe[0],xe[1]+1).map(year=>byYear.get(year)||{year,mean:null});
+svg.append('path').datum(years).attr('fill','none').attr('stroke','var(--viz-series-1)').attr('stroke-width',2).attr('d',d3.line().defined(d=>d.mean!==null).x(d=>x(d.year)).y(d=>y(d.mean)));
+svg.selectAll('circle.point').data(data).join('circle').attr('class','point').attr('cx',d=>x(d.year)).attr('cy',d=>y(d.mean)).attr('r',3).attr('fill','var(--viz-series-1)');
+const marker=svg.append('circle').attr('r',5).attr('fill','var(--viz-series-1)').attr('visibility','hidden');
+function show(event){const px=d3.pointer(event,svg.node())[0];const d=data[d3.bisector(d=>d.year).center(data,x.invert(px))];marker.attr('cx',x(d.year)).attr('cy',y(d.mean)).attr('visibility','visible');detail.textContent=`${d.year}: ${d.mean.toFixed(2)}/5 · ${d.n.toLocaleString('en-US')} ratings · ${d.movies} movie${d.movies===1?'':'s'}`;}
+svg.append('rect').attr('data-chart-hit','').attr('x',left).attr('y',top).attr('width',w-left-right).attr('height',h-top-bottom).attr('fill','transparent').on('pointermove',show).on('click',show);
+const labels=svg.selectAll('.tick text,.axis-title').nodes().map(n=>n.getBoundingClientRect());
+if(labels.some(b=>b.width>w)) throw new Error('Chart label exceeds available width');
+}
+new ResizeObserver(draw).observe(plot);draw();
+})();
+</script>
